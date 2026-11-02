@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10152b">
+  <title>NEXORA AI</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div class="logo">N<span>X</span></div>
+      <div><h1>NEXORA AI</h1><p>Your smart AI assistant</p></div>
+      <span class="status"><i></i> Online</span>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">WELCOME TO NEXORA</p>
+      <h2>Ask anything.<br><span>Learn something new.</span></h2>
+      <p class="sub">Chat in Urdu, Pashto or English. Get help with coding, learning and ideas.</p>
+    </section>
+
+    <section class="chat-card">
+      <div class="chat-head"><div><b>AI Assistant</b><small>Powered by Gemini</small></div><button id="clearBtn" class="clear">Clear chat</button></div>
+      <div id="messages" class="messages" aria-live="polite">
+        <div class="msg assistant"><b>NEXORA AI</b><p>Assalam-o-alaikum! Main NEXORA AI hoon. Aap Urdu, Pashto ya English mein sawal kar sakte hain.</p></div>
+      </div>
+      <form id="chatForm" class="composer">
+        <textarea id="prompt" rows="1" maxlength="4000" placeholder="Type your message..." required></textarea>
+        <button id="sendBtn" type="submit" aria-label="Send">➤</button>
+      </form>
+      <div class="hint">Please don't enter passwords or private information.</div>
+    </section>
+    <footer>© 2026 NEXORA TECHNOLOGIES · Built with care</footer>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
