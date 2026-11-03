@@ -1,32 +1,21 @@
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: "POST request required" })
-    };
+    return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
-
   if (!apiKey) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "GEMINI_API_KEY missing in Netlify" })
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: "Server key is not configured" }) };
   }
 
   try {
     const body = JSON.parse(event.body || "{}");
     const message = String(body.message || "").trim();
-
-    if (!message) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Message is empty" })
-      };
+    if (!message || message.length > 4000) {
+      return { statusCode: 400, body: JSON.stringify({ error: "Message is empty or too long" }) };
     }
 
-    const result = await fetch(
+    const upstream = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
       {
         method: "POST",
@@ -35,42 +24,26 @@ exports.handler = async (event) => {
           "x-goog-api-key": apiKey
         },
         body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: message }]
-            }
-          ]
+          systemInstruction: {
+            parts: [{ text: "You are NEXORA AI, a helpful assistant. Reply in the same language as the user (Urdu, Pashto, or English). Keep explanations clear and friendly. For schoolwork, teach step by step rather than just giving unexplained answers." }]
+          },
+          contents: [{ role: "user", parts: [{ text: message }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 1200 }
         })
       }
     );
 
-    const data = await result.json();
-
-    if (!result.ok) {
-      return {
-        statusCode: 502,
-        body: JSON.stringify({
-          error: "Gemini API error",
-          detail: data.error?.message || "Gemini request failed"
-        })
-      };
+    const result = await upstream.json();
+    if (!upstream.ok) {
+      return { statusCode: 502, body: JSON.stringify({ error: "AI provider error", detail: result.error?.message || "Please try again later." }) };
     }
-
-    const reply = data.candidates?.[0]?.content?.parts
-      ?.map(part => part.text || "")
-      .join("");
-
+    const reply = result.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("").trim();
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reply: reply || "No reply received" })
+      body: JSON.stringify({ reply: reply || "Mujhe jawab nahi mil saka. Dobara poochhein." })
     };
-
   } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message })
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: "Server error" }) };
   }
 };

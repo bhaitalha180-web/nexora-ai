@@ -30,11 +30,22 @@ form.addEventListener("submit", async (event) => {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({message})
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Request failed");
+    const raw = await response.text();
+    let data = {};
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      throw new Error("Server ne JSON response nahi diya: " + raw.slice(0, 250));
+    }
+
+    if (!response.ok) {
+      const detail = data.detail || data.error || "HTTP " + response.status;
+      throw new Error(detail);
+    }
+
     answer.textContent = data.reply || "Jawab nahi mila. Dobara koshish karein.";
   } catch (error) {
-    answer.textContent = "AI connection abhi kaam nahi kar raha. Netlify par GEMINI_API_KEY set hai aur function deploy hua hai, ye check karein.";
+    answer.textContent = "Asal error: " + error.message;
   } finally {
     sendBtn.disabled = false;
     input.focus();
