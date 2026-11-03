@@ -15,7 +15,7 @@ exports.handler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: "Message is empty or too long" }) };
     }
 
-    const upstream = await fetch(
+    const upstream = await fetch(https://script.google.com/macros/s/AKfycbyVk6mP9ZNLX1vjGnkFXkV7F6wS0fJ3g6M7VoRXk0cBglHQr4IUa2IDBt_-9qOcaWoj/exec
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
       {
         method: "POST",
