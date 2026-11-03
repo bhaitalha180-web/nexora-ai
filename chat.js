@@ -30,7 +30,7 @@ form.addEventListener("submit", async (event) => {
   input.value = "";
   sendBtn.disabled = true;
 
-  const answer = addMessage("assistant", "Soch raha hoon...");
+  const answer = addMessage("assistant", "Connecting to NEXORA AI...");
 
   try {
     const response = await fetch("/.netlify/functions/chat", {
@@ -39,27 +39,30 @@ form.addEventListener("submit", async (event) => {
       body: JSON.stringify({ message })
     });
 
-    const data = await response.json();
+    const raw = await response.text();
 
-    if (!response.ok) {
-      throw new Error(
-        data.detail || data.error || `Error ${response.status}`
-      );
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      throw new Error("Server returned invalid response: " + raw.slice(0, 300));
     }
 
-    answer.textContent =
-      data.reply || "Jawab nahi mila. Dobara koshish karein.";
+    if (!response.ok) {
+      throw new Error(data.detail || data.error || "HTTP " + response.status);
+    }
+
+    answer.textContent = data.reply || data.text || "AI ka jawab nahi mila.";
 
   } catch (error) {
-    answer.textContent = "Asal error: " + error.message;
+    answer.textContent = "ASAL ERROR: " + error.message;
   } finally {
     sendBtn.disabled = false;
-    input.focus();
     messages.scrollTop = messages.scrollHeight;
   }
 });
 
-document.querySelector("#clearBtn").addEventListener("click", () => {
+document.querySelector("#clearBtn")?.addEventListener("click", () => {
   messages.replaceChildren();
   addMessage("assistant", "Chat clear ho gayi. Naya sawal poochhein!");
 });
